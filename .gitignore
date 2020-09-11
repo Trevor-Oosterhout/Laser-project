@@ -1,0 +1,10 @@
+*.c
+*.o
+*.elf
+*.bin
+*.exe
+*.map
+*.ld
+html/*
+*.tag
+html
