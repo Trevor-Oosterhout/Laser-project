@@ -3,10 +3,21 @@
 #include "SignalDetector.hpp"
 #include "MSGdecoder.hpp"
 #include "MSGverifier.hpp"
+#include "Keypad.hpp"
+#include "PlayerConfig.hpp"
+#include "GameTime.hpp"
+#include "RegistrationControl.hpp"
+#include "LeaderControl.hpp"
+
 
 
 
 int main(){
+    auto scl = hwlib::target::pin_oc( hwlib::target::pins::scl );
+    auto sda = hwlib::target::pin_oc( hwlib::target::pins::sda );
+
+    auto i2c = hwlib::i2c_bus_bit_banged_scl_sda( scl,sda );
+
     auto keypadrow_0 = hwlib::target::pin_oc(hwlib::target::pins::d40);
     auto keypadrow_1 = hwlib::target::pin_oc(hwlib::target::pins::d38);
     auto keypadrow_2 = hwlib::target::pin_oc(hwlib::target::pins::d36);
@@ -22,15 +33,30 @@ int main(){
 
     auto keypad_matrix = hwlib::matrix_of_switches(keyrows, keycolums);
 
-    auto keypad = hwlib::keypad< 16 >(keypad_matrix, "D#0*C987B654A321");
+    auto keypad = hwlib::keypad< 16 >(keypad_matrix, "147*2580369#ABCD");
 
-    char c;
-    for(;;){
-        c = keypad.pressed();
-        if(c != '\0'){
-            hwlib::cout << c;
-        }
-    }
+    Keypad fkeypad(keypad);
+
+    auto display = hwlib::glcd_oled(i2c, 0x3C);
+    auto font = hwlib::font_default_8x8();
+
+    auto terminal = hwlib::terminal_from(display, font);
+
+    // PlayerConfig playerconfig;
+    // GameTime gametime;
+    //
+    // LeaderControl leadercontrol(gametime, terminal);
+    //
+    // fkeypad.addlistener(&leadercontrol);
+
+
+    // RegistrationControl registrationcontrol(playerconfig, gametime);
+    //
+    // fkeypad.addlistener(&registrationcontrol);
+    //
+    rtos::run();
 
 
 }
+
+// "D#0*C987B654A321"
